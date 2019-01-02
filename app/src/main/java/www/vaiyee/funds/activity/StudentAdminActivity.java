@@ -23,6 +23,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +51,10 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
     static Funds funds=null;
     static int position=0;
     TextView out;
+    public static double  Remainder=0,Remainder2;
+    RadioGroup rg;
+    RadioButton shouru,zhichu;
+    String type="";//收支类型
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,15 +159,43 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
        switch (view.getId())
        {
            case R.id.add_info:
-               View contentView= LayoutInflater.from(this).inflate(R.layout.add_funds_info, null);;
+               final View contentView= LayoutInflater.from(this).inflate(R.layout.add_funds_info, null);
                name = contentView.findViewById(R.id.class_name);
                remainder = contentView.findViewById(R.id.remainder);
+               remainder.setText("余额:"+String.valueOf(Remainder));
                detail = contentView.findViewById(R.id.detail);
+               rg = contentView.findViewById(R.id.rg);
+               rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                   @Override
+                   public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                       RadioButton rb = contentView.findViewById(i);
+                       type = rb.getText().toString();
+                       if (name.getText().toString().isEmpty())
+                       {
+                           Toast.makeText(StudentAdminActivity.this,"请输入额度！",Toast.LENGTH_LONG).show();
+                           rb.setChecked(false);
+                           return;
+                       }
+                       if (type.equals("支出"))
+                       {
+                           double d = Double.parseDouble(name.getText().toString());
+                           remainder.setText(("余额:"+String.valueOf(Remainder2-d)));
+                           Remainder =Remainder2-d;
+                       }
+                       else if (type.equals("收入"))
+                       {
+                           double d = Double.parseDouble(name.getText().toString());
+                           remainder.setText(("余额:"+String.valueOf(Remainder2+d)));
+                           Remainder =Remainder2+d;
+                       }
+                   }
+               });
                popupWindow = new PopupWindow(contentView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                Button cancel = contentView.findViewById(R.id.cancel);
                cancel.setOnClickListener(new View.OnClickListener() {
                    @Override
                    public void onClick(View view) {
+                       Remainder =Remainder2;
                        popupWindow.dismiss();
                    }
                });
@@ -171,15 +205,18 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
                    public void onClick(View view) {
                        if (TextUtils.isEmpty(name.getText().toString()))
                        {
-                           Toast.makeText(StudentAdminActivity.this,"收支详情不能为空！",Toast.LENGTH_LONG).show();
-                       }
-                       if (TextUtils.isEmpty(remainder.getText().toString()))
-                       {
-                           Toast.makeText(StudentAdminActivity.this,"余额不能为空！",Toast.LENGTH_LONG).show();
+                           Toast.makeText(StudentAdminActivity.this,"收支额度不能为空！",Toast.LENGTH_LONG).show();
+                           return;
                        }
                        if (TextUtils.isEmpty(detail.getText().toString()))
                        {
                            Toast.makeText(StudentAdminActivity.this,"请输入经费详情",Toast.LENGTH_LONG).show();
+                           return;
+                       }
+                       if (TextUtils.isEmpty(type))
+                       {
+                           Toast.makeText(StudentAdminActivity.this,"请选择收支类型",Toast.LENGTH_LONG).show();
+                           return;
                        }
                        String result ="";
                        for (int i=0;i<fundsList.size();i++)
@@ -187,9 +224,9 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
                            Funds funds2 = fundsList.get(i);
                            result += funds2.getType()+"+++"+funds2.getRemainder()+"+++"+funds2.getTime()+"+++"+funds2.getDetail()+"++++";
                        }
-                       result +=name.getText().toString()+"+++"+remainder.getText().toString()+"+++"+getTime()+"+++"+detail.getText().toString();
+                       result +=type+name.getText().toString()+"+++"+remainder.getText().toString()+"+++"+getTime()+"+++"+detail.getText().toString();
                        System.out.println(result);
-                       clientThread.sendMessage("addFunds***"+result+"***"+id);
+                       clientThread.sendMessage("addFunds***"+result+"***"+Remainder+"***"+id);
                        popupWindow.dismiss();
                    }
                });
@@ -224,7 +261,8 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
                         }
                         result = result.substring(0,result.lastIndexOf("++++"));
                         System.out.println(result);
-                        clientThread.sendMessage("deleteFunds***"+result+"***"+id);
+                        String yue = fundsList.get(fundsList.size()-1).getRemainder().substring(3);
+                        clientThread.sendMessage("deleteFunds***"+result+"***"+yue+"***"+id);
                         dialog.dismiss();
                     }
                 }).create();
@@ -253,6 +291,12 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
                     String response = msg.getData().getString("response");
                     details = response.substring(0, response.indexOf("****##end"));
                     String[] s = details.split("\\+\\+\\+\\+"); //先把每条记录切开
+                    Remainder = Double.parseDouble(s[s.length-2]);//保存余额
+                    Remainder2 = Double.parseDouble(s[s.length-2]);//这个是不变的，点取消按钮时用回这个值
+                    if (s[0].length()<10)
+                    {
+                        return; //防止没有经费记录时崩溃
+                    }
                     if (s[s.length-1].equals("经费信息更新成功"))
                     {
                         Toast.makeText(StudentAdminActivity.this,"经费信息更新成功！",Toast.LENGTH_LONG).show();
@@ -266,7 +310,7 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
                         Toast.makeText(StudentAdminActivity.this,"经费信息删除成功！",Toast.LENGTH_LONG).show();
                     }
                     fundsList.clear();
-                        for (int i = 0; i < s.length-1; i++) {
+                        for (int i = 0; i < s.length-2; i++) {
                             String[] ss = s[i].split("\\+\\+\\+");//解析每条记录
                             Funds funds = new Funds();
                             funds.setType(ss[0]);
@@ -285,7 +329,6 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View view) {
         if (view.getId()==R.id.output) {
             if (isGrantExternalRW(this)) {  //获取读写权限
-
                 //内置sd卡路径
                 String path = Environment.getExternalStorageDirectory().getAbsolutePath();
                 File file = new File(path);
@@ -319,7 +362,6 @@ public class StudentAdminActivity extends AppCompatActivity implements View.OnCl
 
             return false;
         }
-
         return true;
     }
 }

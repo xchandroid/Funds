@@ -6,14 +6,29 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="www.vaiyee.funds.activity.ExamineActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/blue">
 <TextView
-    android:layout_width="match_parent"
+    android:layout_width="0dp"
     android:layout_height="50dp"
-    android:background="@color/blue"
+    android:layout_weight="1"
     android:gravity="center"
-    android:textColor="@color/black"
+    android:textColor="@color/lv"
+    android:id="@+id/yanzheng"
     android:textSize="18sp"
     android:text="验证班级管理员"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:id="@+id/shanchu"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:text="删除班级管理员"/>
+    </LinearLayout>
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

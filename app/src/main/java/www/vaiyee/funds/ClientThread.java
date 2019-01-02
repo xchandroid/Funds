@@ -36,7 +36,7 @@ public class ClientThread extends Thread {
     @Override
     public void run() {
         try {
-            socket = new Socket("192.168.1.103",6666);
+            socket = new Socket("192.168.1.105",6666);
            // sendMessage("select***select * from student where s_id="+account+" and pwd='"+pwd+"'***获取服务器数据");
             Log.d("连接","服务器成功");
             MainActivity.isConnect = true;  //当连接服务器成功后将标志位设为true

@@ -52,10 +52,14 @@ public class AdminActivity extends AppCompatActivity {
             }
         });
         clientThread = new ClientThread();
-        clientThread.setHandler(handler);
         clientThread.sendMessage("getclassdata***获取服务器上的班级信息");
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        clientThread.setHandler(handler);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void viewOnclick(View view)

@@ -1,8 +1,6 @@
 package www.vaiyee.funds.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -23,15 +21,15 @@ import www.vaiyee.funds.R;
 import www.vaiyee.funds.bean.Student;
 
 /**
- * Created by Administrator on 2018/12/25.
+ * Created by Administrator on 2019/1/2.
  */
 
-public class ExamineAdpater extends BaseAdapter implements View.OnClickListener {
+public class DeleteAdminAdapter extends BaseAdapter implements View.OnClickListener{
     private Context context;
     private List<Student> studentList;
     private SparseBooleanArray sparseBooleanArray = new SparseBooleanArray();
     private static int position;
-    public ExamineAdpater(Context context,List<Student> studentList)
+    public DeleteAdminAdapter(Context context,List<Student> studentList)
     {
         this.context = context;
         this.studentList =studentList;
@@ -58,7 +56,7 @@ public class ExamineAdpater extends BaseAdapter implements View.OnClickListener 
         ViewHolder viewHolder;
         if (view==null)
         {
-            view = LayoutInflater.from(context).inflate(R.layout.examine_item,viewGroup,false);
+            view = LayoutInflater.from(context).inflate(R.layout.delete_admin,viewGroup,false);
             viewHolder = new ViewHolder();
             viewHolder.name = view.findViewById(R.id.textView);
             viewHolder.class_name = view.findViewById(R.id.textView2);
@@ -69,15 +67,15 @@ public class ExamineAdpater extends BaseAdapter implements View.OnClickListener 
         {
             viewHolder = (ViewHolder) view.getTag();
         }
-            if (sparseBooleanArray.get(i)==true)
-            {
-                viewHolder.confirm.setText("已通过");
-                viewHolder.confirm.setBackgroundResource(R.color.hui);
-            }
-            viewHolder.name.setText(student.getName());
-            viewHolder.class_name.setText(student.getClass_name());
-            viewHolder.confirm.setTag(i);
-            viewHolder.confirm.setOnClickListener(this);
+        if (sparseBooleanArray.get(i)==true)
+        {
+            viewHolder.confirm.setText("已删除");
+            viewHolder.confirm.setBackgroundResource(R.color.hui);
+        }
+        viewHolder.name.setText(student.getName());
+        viewHolder.class_name.setText(student.getClass_name());
+        viewHolder.confirm.setTag(i);
+        viewHolder.confirm.setOnClickListener(this);
         return view;
     }
 
@@ -97,13 +95,14 @@ public class ExamineAdpater extends BaseAdapter implements View.OnClickListener 
             clientThread = new ClientThread();
         }
         clientThread.setHandler(handler);
-        clientThread.sendMessage("isPass***"+class_id+"***"+s_id);
+        clientThread.sendMessage("deleteAdmin***"+class_id+"***"+s_id);
     }
 
     public void resetSparseBooleanArray()
     {
         sparseBooleanArray.clear();
     }
+
     Handler handler = new Handler()
     {
         @Override
@@ -112,15 +111,11 @@ public class ExamineAdpater extends BaseAdapter implements View.OnClickListener 
             {
                 case 1:
                     String response = msg.getData().getString("response");
-                    if (response.equals("每个班只允许一个班级管理员****##end"))
-                    {
-                        Toast.makeText(context,"这个班已存在一名管理员！",Toast.LENGTH_LONG).show();
-                    }
-                    else
+                    if (response.equals("管理员删除成功****##end"))
                     {
                         sparseBooleanArray.put(position, true);
                         notifyDataSetChanged();
-                        Toast.makeText(context,"授权通过！",Toast.LENGTH_LONG).show();
+                        Toast.makeText(context,"删除成功！",Toast.LENGTH_LONG).show();
                     }
                     break;
             }

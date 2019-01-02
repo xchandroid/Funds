@@ -16,17 +16,35 @@
     <EditText
         android:layout_width="200dp"
         android:layout_height="40dp"
-        android:hint="请输入收支详细"
+        android:hint="请输入收支额度"
         android:gravity="center"
         android:paddingLeft="5dp"
+        android:digits=".0123456789"
         android:id="@+id/class_name"
         android:layout_marginTop="12dp"
         android:background="@drawable/edittext_style"/>
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rg"
+        android:orientation="horizontal">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/out"
+            android:text="支出"/>
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="收入"
+            android:id="@+id/in"/>
+    </RadioGroup>
     <EditText
         android:layout_width="200dp"
         android:layout_height="40dp"
         android:hint="请输入经费余额"
         android:gravity="center"
+        android:editable="false"
         android:id="@+id/remainder"
         android:paddingLeft="5dp"
         android:layout_marginTop="12dp"
